@@ -5,8 +5,8 @@ SparklesPainter = function(layer) {
     layer._sparkles = [];
   }
 
-  var transparent = Color("#FFF");
-  transparent.alpha(0);
+  var transparent = null;
+
   var color1 = layer.get("color1") || layer.get("color");
   var freq = layer.get("frequency") || layer.get("freq");
 

@@ -48,10 +48,10 @@ Blinken.Lights = (function() {
 
     flatten: function() {
       var pixels = new Array();
-      var white = Color("#FFF");
+      var white = 0xFFFFFF;
 
       for (var i = 0; i < this.length; i++) {
-        var pixel = white.clone();
+        var pixel = white;
         this.layers.forEach(function(layer) {
           pixel = Blinken.Color.combine(pixel, layer.pixels[i])
         })
@@ -90,7 +90,7 @@ Blinken.Layer = (function() {
     this.name = options.name || "Unnamed Layer";
     this.params = options.params || {};
 
-    this.pixels = new Array();
+    this.pixels = new Array(length);
     if (options.fill) {
       this.fill(options.fill);
     }
@@ -115,20 +115,22 @@ Blinken.Layer = (function() {
     },
 
     fill: function(color) {
+      if (typeof color.rgbNumber == "function")
+        color = color.rgbNumber;
+
       for (var i = 0; i < this.length; i++) {
-        this.pixels[i] = color.clone();
+        this.pixels[i] = color;
       }
     },
 
     paintEach: function(painterFunction) {
       for (var i = 0; i < this.length; i++) {
-        var pixel = painterFunction(i, this.pixels[i]);
-        this.pixels[i] = pixel.clone();
+        this.pixels[i] = painterFunction(i, this.pixels[i]);
       }
     },
 
     dump: function() {
-      return this.pixels.map(function(x) {return x.hexString()}).join("  ");
+      return this.pixels.map(function(x) {return x.toString(16)}).join("  ");
     }
   }
   return layer;
@@ -136,10 +138,29 @@ Blinken.Layer = (function() {
 
 Blinken.Color = {
   combine: function(bg, fg) {
-    var bgRGB = bg.rgbArray();
-    var bgAlpha = bg.alpha();
-    var fgRGB = fg.rgbArray();
-    var fgAlpha = fg.alpha();
+    if (fg == null)
+      return bg;
+    if (bg == null)
+      return fg;
+
+    var fgAlpha = 1; //((fg & 0xFF000000) >> 24);
+
+    if (fgAlpha == 0)
+      return fg;
+
+    var fgRGB = [
+      (fg & 0xFF0000) >> 16,
+      (fg & 0x00FF00) >> 8,
+      (fg & 0x0000FF)
+    ];
+
+    var bgAlpha = 1; //((bg & 0xFF000000) >> 24);
+    var bgRGB = [
+      (bg & 0xFF0000) >> 16,
+      (bg & 0x00FF00) >> 8,
+      (bg & 0x0000FF)
+    ];
+
 
     var alpha = 1 - (1 - fgAlpha) * (1 - bgAlpha);
     var fgWeight = fgAlpha / alpha;
@@ -148,7 +169,11 @@ Blinken.Color = {
     var red   = fgRGB[0] * fgWeight + bgRGB[0] * bgWeight;
     var green = fgRGB[1] * fgWeight + bgRGB[1] * bgWeight;
     var blue  = fgRGB[2] * fgWeight + bgRGB[2] * bgWeight;
-    return Color().rgb(red, green, blue);
+    return (alpha << 24) | (red << 16) | (green << 8) | (blue);
+  },
+
+  toCSSHex: function(argb) {
+    return "#" + ("00000000" + (argb & 0xFFFFFF).toString(16)).slice(-6);
   }
 }
 

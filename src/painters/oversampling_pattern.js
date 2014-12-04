@@ -16,12 +16,13 @@ OversamplingPatternPainter = function(layer) {
   layer.paintEach(function(i, pixel) {
     r = 0; g = 0; b = 0;
     for (var j = 0; j < oversample; j++) {
-      pixelRGB = stretchedPattern[(i * oversample + j + step) % stretchedPattern.length].rgbArray();
-      r += pixelRGB[0];
-      g += pixelRGB[1];
-      b += pixelRGB[2];
+      pixelRGB = stretchedPattern[(i * oversample + j + step) % stretchedPattern.length];
+
+      r += (pixelRGB & 0xFF0000) >> 16;
+      g += (pixelRGB & 0x00FF00) >> 8;
+      b += (pixelRGB & 0x0000FF);
     }
-    return Color().rgb(r / oversample, g / oversample, b / oversample);
+    return ((r / oversample) << 16) | ((g / oversample) << 8) | ((b / oversample));
   });
 }
 
