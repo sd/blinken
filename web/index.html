@@ -1,0 +1,135 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">    
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+
+    <script src='jquery-1.11.1.min.js'></script>
+
+    <script src='blinken-bundle.js'></script>
+    <style>
+    .light {
+      width: 10px;
+      height: 10px;
+      float: left;
+      margin-right: 3px;
+      margin-top: 20px;
+      border: 1px solid #333;
+      border-radius: 6px;
+    }
+    </style>
+  </head>
+  <body>
+    <div class='container'><div class='row'><div class='col-md-9'>
+
+    <h1>Blinkenlights 2014</h1>
+
+    <div id='lights_container'>
+    </div>
+
+    <br clear='all' />
+    <hr />
+
+<script>
+  // Blinken = require('blinken/blinken')
+
+  function prepareLightsHTML(lights, container) {
+    var str = "";
+    for (var i = 0; i < lights.length; i++) {
+      str += "<div class='light'>&nbsp;</div>"
+    }
+    $(container).html(str);
+  }
+  function paintAndUpdate(lights, container) {
+    var t1 = performance.now();
+
+    lights.paintAll();
+
+    var children = $(container).children();
+    var pixels = lights.flatten();
+
+    for (var i = 0; i < lights.length; i++) {
+      if (children[i])
+        $(children[i]).css("background-color", pixels[i].hexString());
+    }    
+
+
+    $('#step_button').html("Step " + lights.step);
+    var t2 = performance.now();
+    $('#fps').html((Math.round(1000 / (t2 - t1) * 100) / 100) + " fps");
+  }
+
+  var lights = new Blinken.Lights(300);
+
+  var layer0 = lights.newLayer({
+    name: "Base Layer",
+    painter: Blinken.Painter.Zebra,
+    params: {
+      size: 8,
+      color1: Color("#F00"),
+      color2: Color("#0F0"),
+    }
+  });
+
+  var layer1 = lights.newLayer({
+    name: "Sparkles",
+    painter: Blinken.Painter.Sparkles,
+    params: {
+      color: Color("#FFF"),
+      frequency: 0.07,
+    }
+  })  
+
+  prepareLightsHTML(lights, "#lights_container");
+
+  paintAndUpdate(lights, "#lights_container");
+
+  // lights.layers[0].paint(Blinken.Paint.Pattern([Color("#FF0000"), Color("#FF0033"), Color("#FF0033"), Color("#FF0099")]));
+
+  var playInterval;
+  function playOrPause() {
+    if (playInterval) {
+      window.clearInterval(playInterval);
+      playInterval = null;
+      $('#play_button').html("Play");
+    }
+    else {
+      playInterval = window.setInterval(function() { 
+        paintAndUpdate(lights, "#lights_container")
+      }, 1000/120);
+      $('#play_button').html("Pause");
+    }
+  }
+</script>
+
+<button id='play_button' onclick="playOrPause();">Play</button>
+-
+<button id='step_button' onclick="paintAndUpdate(lights, '#lights_container');">step</button>
+-
+<span id='fps'></span>
+
+<hr />
+
+<div class='form-inline'>
+  <div class='form-group'>
+    <label>Size</label>
+    <input type="text" class="form-control" id="layer_0_params_size" />
+  </div>
+
+  <div class='form-group'>
+    <label>Color 1</label>
+    <input type="text" class="form-control" id="layer_0_params_color1" />
+  </div>
+
+  <div class='form-group'>
+    <label>Color 2</label>
+    <input type="text" class="form-control" id="layer_0_params_color2" />
+  </div>
+</div>
+
+
+</div></div></div>
+
+  </body>
+</html>

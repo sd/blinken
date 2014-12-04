@@ -1,0 +1,2 @@
+Blinken = require('./blinken')
+
