@@ -2,6 +2,7 @@
 
 A Javascript framework for Holiday Tree Lights
 
+# NOT READY FOR PUBLIC CONSUMPTION (YET)
 
 ## Build
 
