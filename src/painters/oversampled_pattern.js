@@ -1,9 +1,10 @@
 Blinken = require('../blinken');
 
-OversamplingPatternPainter = function(layer) {
+OversampledPatternPainter = function(layer) {
   var oversample = 4;
   var pattern = layer.get("pattern");
   var step = (layer.container && layer.container.step) || 0;
+  step = Math.round(step * (layer.get("speed") || 1));
 
   var stretchedPattern = new Array(pattern.length * oversample);
   for (var i = 0; i < pattern.length; i++) {
@@ -16,7 +17,7 @@ OversamplingPatternPainter = function(layer) {
   layer.paintEach(function(i, pixel) {
     r = 0; g = 0; b = 0;
     for (var j = 0; j < oversample; j++) {
-      pixelRGB = stretchedPattern[(i * oversample + j + step) % stretchedPattern.length];
+      pixelRGB = stretchedPattern[Math.abs(i * oversample + j + step) % stretchedPattern.length];
 
       r += (pixelRGB & 0xFF0000) >> 16;
       g += (pixelRGB & 0x00FF00) >> 8;
@@ -26,20 +27,4 @@ OversamplingPatternPainter = function(layer) {
   });
 }
 
-module.exports = OversamplingPatternPainter;
-
-/*
-
-Pattern:   1 2 3 4 1 2 3 4
-           | | | | | | | |
-Pixels:    1 2 3 4 1 2 3 4
-
-Oversampling:  1111222233334444
-               \  /\  /\  /\  /
-Pixels:          1   2   3   4
-
-Oversampling:  4111122223333444
-               \  /\  /\  /\  /
-Pixels:        1~4 2~1 3~2 4~1
-
- */
+module.exports = OversampledPatternPainter;

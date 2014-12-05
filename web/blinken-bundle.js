@@ -78,7 +78,7 @@ Blinken.Lights = (function() {
           layer.painter(layer);
         }
       })
-      this.step = this.step + 1;
+      this.step = (this.step + 1) % (this.length * 10); // make sure our steps loop at a multiple of length
     }
   }
   return lights;
@@ -92,6 +92,7 @@ Blinken.Layer = (function() {
     this.params = options.params || {};
 
     this.pixels = new Array(length);
+    this.alpha = new Array(length);
     if (options.fill) {
       this.fill(options.fill);
     }
@@ -181,22 +182,24 @@ Blinken.Color = {
 Blinken.Painter = {}
 
 Blinken.Painter.Pattern = require('./painters/pattern')
+Blinken.Painter.OversampledPattern = require('./painters/oversampled_pattern')
 Blinken.Painter.Zebra = require('./painters/zebra')
 Blinken.Painter.Sparkles = require('./painters/sparkles')
 
 
 module.exports = Blinken;
-},{"./painters/pattern":"/Users/sd/Work/Projects/blinken14/src/painters/pattern.js","./painters/sparkles":"/Users/sd/Work/Projects/blinken14/src/painters/sparkles.js","./painters/zebra":"/Users/sd/Work/Projects/blinken14/src/painters/zebra.js","color":"/Users/sd/node_modules/color/color.js"}],"/Users/sd/Work/Projects/blinken14/src/bundle.js":[function(require,module,exports){
+},{"./painters/oversampled_pattern":"/Users/sd/Work/Projects/blinken14/src/painters/oversampled_pattern.js","./painters/pattern":"/Users/sd/Work/Projects/blinken14/src/painters/pattern.js","./painters/sparkles":"/Users/sd/Work/Projects/blinken14/src/painters/sparkles.js","./painters/zebra":"/Users/sd/Work/Projects/blinken14/src/painters/zebra.js","color":"/Users/sd/node_modules/color/color.js"}],"/Users/sd/Work/Projects/blinken14/src/bundle.js":[function(require,module,exports){
 Blinken = require('./blinken')
 
 
-},{"./blinken":"/Users/sd/Work/Projects/blinken14/src/blinken.js"}],"/Users/sd/Work/Projects/blinken14/src/painters/oversampling_pattern.js":[function(require,module,exports){
+},{"./blinken":"/Users/sd/Work/Projects/blinken14/src/blinken.js"}],"/Users/sd/Work/Projects/blinken14/src/painters/oversampled_pattern.js":[function(require,module,exports){
 Blinken = require('../blinken');
 
-OversamplingPatternPainter = function(layer) {
+OversampledPatternPainter = function(layer) {
   var oversample = 4;
   var pattern = layer.get("pattern");
   var step = (layer.container && layer.container.step) || 0;
+  step = Math.round(step * (layer.get("speed") || 1));
 
   var stretchedPattern = new Array(pattern.length * oversample);
   for (var i = 0; i < pattern.length; i++) {
@@ -209,7 +212,7 @@ OversamplingPatternPainter = function(layer) {
   layer.paintEach(function(i, pixel) {
     r = 0; g = 0; b = 0;
     for (var j = 0; j < oversample; j++) {
-      pixelRGB = stretchedPattern[(i * oversample + j + step) % stretchedPattern.length];
+      pixelRGB = stretchedPattern[Math.abs(i * oversample + j + step) % stretchedPattern.length];
 
       r += (pixelRGB & 0xFF0000) >> 16;
       g += (pixelRGB & 0x00FF00) >> 8;
@@ -219,32 +222,18 @@ OversamplingPatternPainter = function(layer) {
   });
 }
 
-module.exports = OversamplingPatternPainter;
+module.exports = OversampledPatternPainter;
 
-/*
-
-Pattern:   1 2 3 4 1 2 3 4
-           | | | | | | | |
-Pixels:    1 2 3 4 1 2 3 4
-
-Oversampling:  1111222233334444
-               \  /\  /\  /\  /
-Pixels:          1   2   3   4
-
-Oversampling:  4111122223333444
-               \  /\  /\  /\  /
-Pixels:        1~4 2~1 3~2 4~1
-
- */
 },{"../blinken":"/Users/sd/Work/Projects/blinken14/src/blinken.js"}],"/Users/sd/Work/Projects/blinken14/src/painters/pattern.js":[function(require,module,exports){
 Blinken = require('../blinken');
 
 PatternPainter = function(layer) {
   var pattern = layer.get("pattern");
   var step = (layer.container && layer.container.step) || 0;
+  step = Math.round(step * (layer.get("speed") || 1));
 
   layer.paintEach(function(i, pixel) {
-    return pattern[(i + step) % pattern.length];
+    return pattern[Math.abs(i + step) % pattern.length];
   });
 }
 
@@ -277,7 +266,7 @@ module.exports = SparklesPainter;
 
 },{"../blinken":"/Users/sd/Work/Projects/blinken14/src/blinken.js"}],"/Users/sd/Work/Projects/blinken14/src/painters/zebra.js":[function(require,module,exports){
 Blinken = require('../blinken');
-PatternPainter = require('./oversampling_pattern');
+PatternPainter = require('./oversampled_pattern');
 
 ZebraPainter = function(layer) {
   var segmentLength = layer.get("size") || 1;
@@ -296,7 +285,7 @@ ZebraPainter = function(layer) {
 module.exports = ZebraPainter;
 
 
-},{"../blinken":"/Users/sd/Work/Projects/blinken14/src/blinken.js","./oversampling_pattern":"/Users/sd/Work/Projects/blinken14/src/painters/oversampling_pattern.js"}],"/Users/sd/node_modules/color/color.js":[function(require,module,exports){
+},{"../blinken":"/Users/sd/Work/Projects/blinken14/src/blinken.js","./oversampled_pattern":"/Users/sd/Work/Projects/blinken14/src/painters/oversampled_pattern.js"}],"/Users/sd/node_modules/color/color.js":[function(require,module,exports){
 /* MIT license */
 var convert = require("color-convert"),
     string = require("color-string");

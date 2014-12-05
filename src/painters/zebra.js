@@ -1,5 +1,5 @@
 Blinken = require('../blinken');
-PatternPainter = require('./oversampling_pattern');
+PatternPainter = require('./oversampled_pattern');
 
 ZebraPainter = function(layer) {
   var segmentLength = layer.get("size") || 1;

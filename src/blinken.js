@@ -77,7 +77,7 @@ Blinken.Lights = (function() {
           layer.painter(layer);
         }
       })
-      this.step = this.step + 1;
+      this.step = (this.step + 1) % (this.length * 10); // make sure our steps loop at a multiple of length
     }
   }
   return lights;
@@ -91,6 +91,7 @@ Blinken.Layer = (function() {
     this.params = options.params || {};
 
     this.pixels = new Array(length);
+    this.alpha = new Array(length);
     if (options.fill) {
       this.fill(options.fill);
     }
@@ -180,6 +181,7 @@ Blinken.Color = {
 Blinken.Painter = {}
 
 Blinken.Painter.Pattern = require('./painters/pattern')
+Blinken.Painter.OversampledPattern = require('./painters/oversampled_pattern')
 Blinken.Painter.Zebra = require('./painters/zebra')
 Blinken.Painter.Sparkles = require('./painters/sparkles')
 

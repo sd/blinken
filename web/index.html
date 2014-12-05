@@ -48,19 +48,47 @@
 
 <div class='form-inline'>
   <div class='form-group'>
+    Global -
+    <label>Speed</label>
+    <input type="text" class="form-control" id="lights_params_speed" />
+  </div>
+  <hr />
+
+  <div class='form-group'>
+    Base Layer -
     <label>Size</label>
-    <input type="text" class="form-control" id="layer_0_params_size" />
+    <input type="text" class="form-control" id="base_params_size" />
   </div>
 
   <div class='form-group'>
     <label>Color 1</label>
-    <input type="text" class="form-control" id="layer_0_params_color1" />
+    <input type="text" class="form-control" id="base_params_color1" />
   </div>
 
   <div class='form-group'>
     <label>Color 2</label>
-    <input type="text" class="form-control" id="layer_0_params_color2" />
+    <input type="text" class="form-control" id="base_params_color2" />
   </div>
+
+  <hr />
+  <div class='form-group'>
+    Sparkles -
+    <label>Frequency</label>
+    <input type="text" class="form-control" id="sparkles_params_freq" />
+  </div>
+
+  <div class='form-group'>
+    <label>Color 1</label>
+    <input type="text" class="form-control" id="sparkles_params_color1" />
+  </div>
+
+  <hr />
+  <div class='form-group'>
+    Blue Lines -
+    <label>Speed</label>
+    <input type="text" class="form-control" id="bluelines_params_speed" />
+  </div>
+
 </div>
 
 
@@ -98,7 +126,9 @@
 
   var lights = new Blinken.Lights(300);
 
-  var layer0 = lights.newLayer({
+  lights.set("speed", -1);
+
+  var baseLayer = lights.newLayer({
     name: "Base Layer",
     painter: Blinken.Painter.Zebra,
     params: {
@@ -108,14 +138,33 @@
     }
   });
 
-  var layer1 = lights.newLayer({
+  // var layer0 = lights.newLayer({
+  //   name: "Blue/White",
+  //   painter: Blinken.Painter.OversampledPattern,
+  //   params: {
+  //     pattern: [0x0000FF, 0x0000FF, 0x0000FF, 0x0000FF, 0x0000FF, 0xFFFFFF, 0xFFFFFF]
+  //   }
+  // })  
+
+
+  var bluelinesLayer = lights.newLayer({
+    name: "Blue Lines",
+    painter: Blinken.Painter.Pattern,
+    params: {
+      speed: 0.5,
+      pattern: [0x0000FF, 0x0000FF, 0x0000FF, 0x0000FF, null, null, null, null, null, null, null, null, null, null, 0x0000FF, 0x0000FF, 0x0000FF, 0x0000FF, 0x0000FF, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0x0000FF, 0x0000FF,  null, null, null, null, null, null, null, null, null, null]
+    }
+  })  
+  var sparklesLayer = lights.newLayer({
     name: "Sparkles",
     painter: Blinken.Painter.Sparkles,
     params: {
-      color: 0x99FFFFFF, //Color("#FFF"),
+      color1: 0x99FFFFFF, //Color("#FFF"),
       frequency: 0.07,
     }
   })  
+
+
 
   prepareLightsHTML(lights, "#lights_container");
 
@@ -138,24 +187,48 @@
     }
   }
 
-  $('#layer_0_params_size').change(function() {
-    lights.layers[0].set("size", parseInt($('#layer_0_params_size').val()));
+  $('#lights_params_speed').change(function() {
+    lights.set("speed", parseFloat($('#lights_params_speed').val()));
   });
-  $('#layer_0_params_size').val(lights.layers[0].get("size"));
+  $('#lights_params_speed').val(lights.get("speed"));
 
-  $('#layer_0_params_color1').change(function() {
-    var v = $('#layer_0_params_color1').val();
-
-    lights.layers[0].set("color1", Color(v).rgbNumber());
+  $('#base_params_size').change(function() {
+    baseLayer.set("size", parseInt($('#base_params_size').val()));
   });
-  $('#layer_0_params_color1').val(Blinken.Color.toCSSHex(lights.layers[0].get("color1")));
+  $('#base_params_size').val(baseLayer.get("size"));
 
-  $('#layer_0_params_color2').change(function() {
-    var v = $('#layer_0_params_color2').val();
+  $('#base_params_color1').change(function() {
+    var v = $('#base_params_color1').val();
 
-    lights.layers[0].set("color2", Color(v).rgbNumber());
+    baseLayer.set("color1", Color(v).rgbNumber());
   });
-  $('#layer_0_params_color2').val(Blinken.Color.toCSSHex(lights.layers[0].get("color2")));
+  $('#base_params_color1').val(Blinken.Color.toCSSHex(baseLayer.get("color1")));
+
+  $('#base_params_color2').change(function() {
+    var v = $('#base_params_color2').val();
+
+    baseLayer.set("color2", Color(v).rgbNumber());
+  });
+  $('#base_params_color2').val(Blinken.Color.toCSSHex(baseLayer.get("color2")));
+
+
+  $('#sparkles_params_freq').change(function() {
+    sparklesLayer.set("frequency", parseFloat($('#sparkles_params_freq').val()));
+  });
+  $('#sparkles_params_freq').val(sparklesLayer.get("frequency"));
+
+
+  $('#sparkles_params_color1').change(function() {
+    var v = $('#sparkles_params_color1').val();
+
+    sparklesLayer.set("color1", Color(v).rgbNumber());
+  });
+  $('#sparkles_params_color1').val(Blinken.Color.toCSSHex(sparklesLayer.get("color1")));
+
+  $('#bluelines_params_speed').change(function() {
+    bluelinesLayer.set("speed", parseFloat($('#bluelines_params_speed').val()));
+  });
+  $('#bluelines_params_speed').val(sparklesLayer.get("speed"));
 
 </script>  </body>
 </html>
